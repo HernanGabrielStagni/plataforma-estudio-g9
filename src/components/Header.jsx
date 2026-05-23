@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { asset } from "../lib/assets";
 
 export default function Header({ visitedSections, totalSections = 7 }) {
   const progress = (visitedSections.length / totalSections) * 100;
@@ -11,7 +12,7 @@ export default function Header({ visitedSections, totalSections = 7 }) {
         <div className="flex items-center gap-4 flex-shrink-0">
           <div className="logo-glow-ring rounded-full flex-shrink-0">
             <img
-              src="/logo.png"
+              src={asset("/logo.png")}
               alt="Espacio Semillas"
               className="h-16 w-16 md:h-20 md:w-20 rounded-full object-cover"
             />

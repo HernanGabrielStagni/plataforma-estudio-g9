@@ -1,3 +1,4 @@
+import { asset } from "../lib/assets";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
@@ -6,7 +7,7 @@ import { X, ZoomIn, ZoomOut, Maximize2, RotateCcw } from "lucide-react";
 const infografias = [
   {
     id: 1,
-    src: "/media/Bases_de_Constelaciones_Organizacionales.png",
+    src: asset("/media/Bases_de_Constelaciones_Organizacionales.png"),
     titulo: "Bases de Constelaciones Organizacionales",
     subtitulo: "Fundamentos teóricos y campo de conocimiento",
     descripcion:
@@ -20,7 +21,7 @@ const infografias = [
   },
   {
     id: 2,
-    src: "/media/El_Alma_de_las_Organizaciones.png",
+    src: asset("/media/El_Alma_de_las_Organizaciones.png"),
     titulo: "El Alma de las Organizaciones",
     subtitulo: "Las tres facetas de la conciencia colectiva",
     descripcion:
@@ -34,7 +35,7 @@ const infografias = [
   },
   {
     id: 3,
-    src: "/media/Guía_de_Constelaciones_Organizacionales.png",
+    src: asset("/media/Guía_de_Constelaciones_Organizacionales.png"),
     titulo: "Guía de Constelaciones Organizacionales",
     subtitulo: "Tipos de constelación y frases sanadoras",
     descripcion:

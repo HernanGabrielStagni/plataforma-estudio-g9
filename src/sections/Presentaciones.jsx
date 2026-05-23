@@ -1,3 +1,4 @@
+import { asset } from "../lib/assets";
 import { motion } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
 import { Presentation, Download, ExternalLink } from "lucide-react";
@@ -8,8 +9,8 @@ const presentaciones = [
     titulo: "Arquitectura Invisible Organizacional",
     subtitulo: "Bases teóricas y campo de conocimiento",
     emoji: "🏗️",
-    pptUrl: "/media/Arquitectura_Invisible_Organizacional.pptx",
-    coverImg: "/media/Bases_de_Constelaciones_Organizacionales.png",
+    pptUrl: asset("/media/Arquitectura_Invisible_Organizacional.pptx"),
+    coverImg: asset("/media/Bases_de_Constelaciones_Organizacionales.png"),
     descripcion:
       "Esta presentación introduce el concepto de arquitectura invisible en las organizaciones: las estructuras, lealtades y órdenes que no aparecen en ningún organigrama pero determinan de manera decisiva el funcionamiento del sistema. Explora la transición desde las constelaciones familiares hacia el entorno organizacional.",
     contenidos: [
@@ -25,8 +26,8 @@ const presentaciones = [
     titulo: "Systemic Facilitation Toolkit",
     subtitulo: "Herramientas para el facilitador sistémico",
     emoji: "🧰",
-    pptUrl: "/media/Systemic_Facilitation_Toolkit.pptx",
-    coverImg: "/media/El_Alma_de_las_Organizaciones.png",
+    pptUrl: asset("/media/Systemic_Facilitation_Toolkit.pptx"),
+    coverImg: asset("/media/El_Alma_de_las_Organizaciones.png"),
     descripcion:
       "Guía práctica de herramientas para el facilitador de constelaciones organizacionales. Presenta técnicas de apertura, tipos de preguntas, manejo del campo y estrategias para acompañar al cliente en la identificación del problema sistémico central. Orientada a la aplicación profesional.",
     contenidos: [
@@ -42,8 +43,8 @@ const presentaciones = [
     titulo: "Organizational Constellations Practice",
     subtitulo: "Aplicación práctica y tipos de constelación",
     emoji: "🔬",
-    pptUrl: "/media/Organizational_Constellations_Practice.pptx",
-    coverImg: "/media/Guía_de_Constelaciones_Organizacionales.png",
+    pptUrl: asset("/media/Organizational_Constellations_Practice.pptx"),
+    coverImg: asset("/media/Guía_de_Constelaciones_Organizacionales.png"),
     descripcion:
       "Presentación centrada en la práctica de los cuatro tipos de constelación organizacional. Incluye casos de aplicación, criterios de elección del formato adecuado y guías paso a paso para cada modalidad. Es la síntesis operativa de todo el aprendizaje de la Lección 9.",
     contenidos: [

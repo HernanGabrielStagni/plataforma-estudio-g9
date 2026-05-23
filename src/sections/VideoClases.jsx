@@ -1,3 +1,4 @@
+import { asset } from "../lib/assets";
 import { motion } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
 import { PlayCircle } from "lucide-react";
@@ -5,7 +6,7 @@ import { PlayCircle } from "lucide-react";
 const videos = [
   {
     id: 1,
-    src: "/media/Fuerzas_Ocultas_Laborales.mp4",
+    src: asset("/media/Fuerzas_Ocultas_Laborales.mp4"),
     titulo: "Fuerzas Ocultas Laborales",
     subtitulo: "Dinámicas invisibles en el entorno organizacional",
     emoji: "🌀",
@@ -20,7 +21,7 @@ const videos = [
   },
   {
     id: 2,
-    src: "/media/Dominando_Constelaciones.mp4",
+    src: asset("/media/Dominando_Constelaciones.mp4"),
     titulo: "Dominando Constelaciones",
     subtitulo: "Técnica y metodología del trabajo organizacional",
     emoji: "🎯",
@@ -35,7 +36,7 @@ const videos = [
   },
   {
     id: 3,
-    src: "/media/Constelación_Organizacional.mp4",
+    src: asset("/media/Constelación_Organizacional.mp4"),
     titulo: "Constelación Organizacional",
     subtitulo: "Práctica integral y casos de aplicación",
     emoji: "🏛️",

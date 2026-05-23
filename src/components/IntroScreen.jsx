@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { asset } from "../lib/assets";
 
 export default function IntroScreen({ onComplete }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -34,7 +35,7 @@ export default function IntroScreen({ onComplete }) {
     >
       <video
         ref={videoRef}
-        src="/intro.mp4"
+        src={asset("/intro.mp4")}
         playsInline
         onEnded={onComplete}
         className="absolute inset-0 w-full h-full object-contain bg-black"
@@ -43,7 +44,7 @@ export default function IntroScreen({ onComplete }) {
       {!isPlaying && (
         <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center backdrop-blur-sm z-10 transition-opacity p-6">
           <img
-            src="/logo.png"
+            src={asset("/logo.png")}
             alt="Espacio Semillas"
             className="w-32 h-32 md:w-48 md:h-48 object-contain mb-6 drop-shadow-2xl brightness-110"
           />

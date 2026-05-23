@@ -1,3 +1,4 @@
+import { asset } from "../lib/assets";
 import { motion } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
 import { FileText, BookOpen, Download, ExternalLink, FileCheck, Music } from "lucide-react";
@@ -10,7 +11,7 @@ const documentos = [
     colorBadge: "bg-[#1a3d2b] text-white",
     titulo: "Capítulo 9 · Constelaciones Organizacionales",
     subtitulo: "Lectura base del curso",
-    src: "/media/09-Capitulo_9-CURSO_CONSTELACIONES.pdf",
+    src: asset("/media/09-Capitulo_9-CURSO_CONSTELACIONES.pdf"),
     descripcion:
       "Lectura fundamental de la lección. Este capítulo desarrolla en profundidad la teoría de las constelaciones organizacionales: la diferencia con las familiares, el campo de conocimiento, las tres facetas de la conciencia y los tipos de constelación. Es la base teórica que sustenta todos los demás materiales de la Lección 9.",
     indicaciones: [
@@ -28,7 +29,7 @@ const documentos = [
     colorBadge: "bg-dorado text-verde-oscuro",
     titulo: "Guía de Estudio Maestra · Unidad 9",
     subtitulo: "Actividades y reflexiones de la unidad",
-    src: "/media/Guia_de_Estudio_Maestra_Unidad_9.pdf",
+    src: asset("/media/Guia_de_Estudio_Maestra_Unidad_9.pdf"),
     descripcion:
       "Guía de trabajo personal para acompañar el estudio de la Lección 9. Incluye preguntas de reflexión, actividades prácticas y ejercicios de autoindagación para integrar los conceptos vistos en los videos y presentaciones. Diseñada para aplicar la mirada sistémica a entornos organizacionales reales.",
     indicaciones: [
@@ -46,7 +47,7 @@ const documentos = [
     colorBadge: "bg-[#2d4a8a] text-white",
     titulo: "Sanar empresas con constelaciones organizacionales",
     subtitulo: "Audio complementario de la unidad",
-    src: "/media/Sanar_empresas_con_constelaciones_organizacionales.m4a",
+    src: asset("/media/Sanar_empresas_con_constelaciones_organizacionales.m4a"),
     descripcion:
       "Audio complementario que profundiza en la aplicación práctica de las constelaciones para sanar dinámicas disfuncionales en empresas e instituciones. Ofrece una perspectiva narrativa y experiencial que enriquece los conceptos teóricos desarrollados en los videos y presentaciones.",
     indicaciones: [
