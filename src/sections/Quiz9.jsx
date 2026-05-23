@@ -68,7 +68,7 @@ export default function Quiz9() {
             transition={{ delay: 0.7 }}
           >
             <a
-              href="https://quiz-9-constelaciones.netlify.app/"
+              href="https://quiz-9-const-espacio-semillas.netlify.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 bg-gradient-to-r from-dorado to-dorado-claro text-verde-oscuro font-playfair font-bold text-lg md:text-xl px-10 py-4 rounded-xl shadow-gold hover:shadow-lg hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
