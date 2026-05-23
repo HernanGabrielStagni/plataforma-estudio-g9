@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
-import { PlayCircle, Presentation, Image, FileText, BookOpen, CheckSquare } from "lucide-react";
+import { PlayCircle, Presentation, Image, FileText, BookOpen, CheckSquare, Music } from "lucide-react";
+import { asset } from "../lib/assets";
 
 const modulos = [
   {
@@ -71,6 +72,43 @@ export default function Inicio() {
         <p className="font-playfair italic text-[#2d6a4f] text-[16px] border-l-4 border-dorado pl-4">
           "Yo tomo mi responsabilidad y dejo contigo la tuya."
         </p>
+      </motion.div>
+
+      {/* Audio complementario */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="bg-white rounded-2xl border border-crema shadow-card overflow-hidden"
+      >
+        <div className="bg-gradient-to-r from-[#2d4a8a] to-[#4a7af0] px-6 py-4 flex items-center gap-3">
+          <Music className="w-5 h-5 text-white/80" />
+          <div>
+            <span className="text-white/60 text-xs font-lato uppercase tracking-widest">
+              Audio · Introducción
+            </span>
+            <h3 className="text-white font-playfair text-lg font-black m-0 !text-white !shadow-none">
+              Sanar empresas con constelaciones organizacionales
+            </h3>
+          </div>
+        </div>
+        <div className="px-6 py-5">
+          <p className="text-[#1a3d2b]/70 font-lato text-[14px] leading-relaxed mb-4">
+            Una introducción narrativa al mundo de las constelaciones organizacionales.
+            Escuchalo antes de comenzar para entrar en el espacio de aprendizaje.
+          </p>
+          <audio
+            controls
+            preload="metadata"
+            className="w-full rounded-lg"
+            style={{ accentColor: "#c9a84c" }}
+          >
+            <source
+              src={asset("/media/Sanar_empresas_con_constelaciones_organizacionales.m4a")}
+              type="audio/mp4"
+            />
+          </audio>
+        </div>
       </motion.div>
 
       {/* Objetivos de la lección */}
