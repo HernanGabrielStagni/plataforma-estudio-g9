@@ -24,6 +24,9 @@ export default function Header({ visitedSections, totalSections = 7 }) {
             <span className="text-[#c9a84c]/80 font-lato text-xs md:text-sm uppercase tracking-[0.2em] mt-0.5">
               Constelaciones Familiares
             </span>
+            <span className="text-[#c9a84c]/80 font-lato text-xs md:text-sm uppercase tracking-[0.2em] mt-0.5">
+              DISEÑADO POR: Hernán Gabriel Stagni
+            </span>
           </div>
         </div>
 
