@@ -34,7 +34,7 @@ export default function IntroScreen({ onComplete }) {
     >
       <video
         ref={videoRef}
-        src="/FINAL ANIMACION ESPACIO SEMILLAS.MP4"
+        src="/intro.mp4"
         playsInline
         onEnded={onComplete}
         className="absolute inset-0 w-full h-full object-contain bg-black"
