@@ -1,0 +1,303 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Global Styles ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Lato", sans-serif;
+  background-color: #fdfaf4;
+  color: #1a3d2b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ===== Scrollbar Styling ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f0e8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d6a4f;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1a3d2b;
+}
+
+/* ===== Typography ===== */
+h1, h2 {
+  font-family: "Playfair Display", serif;
+  color: #1a3d2b;
+  text-shadow:
+    0.5px 0.5px 0px rgba(255, 255, 255, 0.9),
+    1px 1px 0px rgba(201, 168, 76, 0.4),
+    1.5px 1.5px 2px rgba(26, 61, 43, 0.25);
+}
+
+h3, h4, h5, h6 {
+  font-family: "Georgia", serif !important;
+  color: #2a5a43 !important;
+  text-shadow:
+    1px 1px 0 rgba(255, 255, 255, 1),
+    2px 2px 0 rgba(201, 168, 76, 0.6),
+    3px 3px 4px rgba(26, 61, 43, 0.65) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em;
+}
+
+em, i, .italic-highlight {
+  font-family: "Monotype Corsiva", "Apple Chancery", cursive !important;
+  color: #2a5a43 !important;
+  text-shadow:
+    1px 1px 0 rgba(255, 255, 255, 0.8),
+    2px 2px 2px rgba(26, 61, 43, 0.3);
+  font-size: 1.6em;
+  line-height: 1;
+}
+
+/* ===== Premium Card Base ===== */
+@layer components {
+  .card-premium {
+    @apply rounded-xl p-6 shadow-card transition-all duration-300 bg-verde-logo/20;
+    border: 1px solid rgba(42, 90, 67, 0.15);
+  }
+
+  .card-premium:hover {
+    @apply shadow-card-hover;
+    transform: translateY(-2px);
+    border-color: rgba(201, 168, 76, 0.4);
+  }
+
+  .healing-phrase {
+    @apply bg-verde-logo/30 rounded-lg p-5 my-4 italic;
+    border-left: 4px solid #c9a84c;
+    font-family: "Monotype Corsiva", "Apple Chancery", cursive !important;
+    font-size: 2.2rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: #122b1e;
+    text-shadow: 0px 0px 1px rgba(26, 61, 43, 0.2);
+  }
+
+  .section-title {
+    @apply text-3xl md:text-5xl font-black mb-2;
+    font-family: "Playfair Display", serif;
+    color: #1a3d2b;
+    text-shadow:
+      1px 1px 0px #ffffff,
+      2px 2px 0px #ffffff,
+      3.5px 3.5px 5px rgba(0, 0, 0, 0.22);
+  }
+
+  .section-subtitle {
+    @apply text-lg mb-8 uppercase tracking-wide block;
+    font-family: "Georgia", serif !important;
+    color: #2a5a43 !important;
+    font-weight: 700 !important;
+    text-shadow:
+      1px 1px 0 rgba(255, 255, 255, 1),
+      2px 2px 0 rgba(201, 168, 76, 0.5),
+      3px 3px 4px rgba(26, 61, 43, 0.5) !important;
+  }
+
+  .gold-accent {
+    color: #c9a84c;
+  }
+
+  .gold-border {
+    border-color: #c9a84c;
+  }
+
+  /* Table Styling */
+  .table-premium {
+    @apply w-full rounded-xl overflow-hidden shadow-card;
+    border: 1px solid rgba(201, 168, 76, 0.15);
+  }
+
+  .table-premium thead {
+    background: linear-gradient(135deg, #1a3d2b 0%, #2d6a4f 100%);
+  }
+
+  .table-premium thead th {
+    @apply px-5 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider;
+    font-family: "Lato", sans-serif;
+  }
+
+  .table-premium tbody tr {
+    @apply border-b border-crema transition-colors duration-200;
+  }
+
+  .table-premium tbody tr:hover {
+    background-color: rgba(245, 240, 232, 0.5);
+  }
+
+  .table-premium tbody td {
+    @apply px-5 py-4 text-[15px] font-medium text-[#122b1e];
+  }
+
+  .table-premium tbody tr:last-child {
+    @apply border-b-0;
+  }
+
+  .texture-overlay {
+    position: relative;
+  }
+
+  .texture-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a3d2b' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+}
+
+/* ===== Header Premium ===== */
+.header-premium {
+  background: linear-gradient(
+    135deg,
+    #0d2318 0%,
+    #1a3d2b 40%,
+    #112a1d 70%,
+    #0d2318 100%
+  );
+  border-bottom: 1px solid rgba(201, 168, 76, 0.35);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(201, 168, 76, 0.2) inset,
+    0 0 60px rgba(201, 168, 76, 0.04) inset;
+}
+
+/* Logo glow ring */
+.logo-glow-ring {
+  padding: 3px;
+  background: linear-gradient(135deg, #c9a84c, #f0d070, #c9a84c, #8a6820);
+  animation: logoRingGlow 3s ease-in-out infinite alternate;
+  box-shadow:
+    0 0 12px rgba(201, 168, 76, 0.6),
+    0 0 30px rgba(201, 168, 76, 0.3),
+    0 0 60px rgba(201, 168, 76, 0.1);
+}
+
+@keyframes logoRingGlow {
+  0% {
+    box-shadow:
+      0 0 10px rgba(201, 168, 76, 0.5),
+      0 0 25px rgba(201, 168, 76, 0.25),
+      0 0 50px rgba(201, 168, 76, 0.1);
+    background: linear-gradient(135deg, #c9a84c, #f0d070, #c9a84c, #8a6820);
+  }
+  100% {
+    box-shadow:
+      0 0 18px rgba(240, 208, 112, 0.8),
+      0 0 40px rgba(201, 168, 76, 0.5),
+      0 0 80px rgba(201, 168, 76, 0.2);
+    background: linear-gradient(135deg, #f0d070, #ffe066, #f0d070, #c9a84c);
+  }
+}
+
+/* Brand name glow */
+.header-brand-glow {
+  text-shadow:
+    0 0 8px rgba(255, 234, 0, 0.6),
+    0 0 20px rgba(255, 234, 0, 0.3),
+    0 0 40px rgba(255, 200, 0, 0.15),
+    2px 2px 4px rgba(0, 0, 0, 0.5);
+  animation: brandPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes brandPulse {
+  0% {
+    text-shadow:
+      0 0 6px rgba(255, 234, 0, 0.5),
+      0 0 15px rgba(255, 234, 0, 0.25),
+      2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  100% {
+    text-shadow:
+      0 0 12px rgba(255, 234, 0, 0.8),
+      0 0 30px rgba(255, 234, 0, 0.45),
+      0 0 60px rgba(255, 200, 0, 0.2),
+      2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Title glow */
+.header-title-glow {
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.4),
+    0 0 20px rgba(201, 168, 76, 0.3),
+    1px 1px 0 rgba(0, 0, 0, 0.8),
+    2px 2px 0 rgba(201, 168, 76, 0.4),
+    3px 3px 6px rgba(0, 0, 0, 0.6);
+  animation: titleGlow 5s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  0% {
+    text-shadow:
+      0 0 6px rgba(255, 255, 255, 0.3),
+      0 0 15px rgba(201, 168, 76, 0.2),
+      1px 1px 0 rgba(0, 0, 0, 0.8),
+      2px 2px 6px rgba(0, 0, 0, 0.5);
+  }
+  100% {
+    text-shadow:
+      0 0 12px rgba(255, 255, 255, 0.6),
+      0 0 30px rgba(201, 168, 76, 0.5),
+      0 0 50px rgba(201, 168, 76, 0.2),
+      1px 1px 0 rgba(0, 0, 0, 0.8),
+      2px 2px 6px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* ===== Progress Bar Animation ===== */
+.progress-bar-animated {
+  background: linear-gradient(90deg, #c9a84c 0%, #d4b96a 50%, #c9a84c 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+  transition: width 0.5s ease-out;
+}
