@@ -1,7 +1,10 @@
 import { asset } from "../lib/assets";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
-import { Presentation, Download, ExternalLink } from "lucide-react";
+import { Presentation, Download, ChevronDown, ChevronUp } from "lucide-react";
+
+const BASE_URL = "https://hernangabrielstagni.github.io";
 
 const presentaciones = [
   {
@@ -10,7 +13,6 @@ const presentaciones = [
     subtitulo: "Bases teóricas y campo de conocimiento",
     emoji: "🏗️",
     pptUrl: asset("/media/Arquitectura_Invisible_Organizacional.pptx"),
-    coverImg: asset("/media/Bases_de_Constelaciones_Organizacionales.png"),
     descripcion:
       "Esta presentación introduce el concepto de arquitectura invisible en las organizaciones: las estructuras, lealtades y órdenes que no aparecen en ningún organigrama pero determinan de manera decisiva el funcionamiento del sistema. Explora la transición desde las constelaciones familiares hacia el entorno organizacional.",
     contenidos: [
@@ -27,7 +29,6 @@ const presentaciones = [
     subtitulo: "Herramientas para el facilitador sistémico",
     emoji: "🧰",
     pptUrl: asset("/media/Systemic_Facilitation_Toolkit.pptx"),
-    coverImg: asset("/media/El_Alma_de_las_Organizaciones.png"),
     descripcion:
       "Guía práctica de herramientas para el facilitador de constelaciones organizacionales. Presenta técnicas de apertura, tipos de preguntas, manejo del campo y estrategias para acompañar al cliente en la identificación del problema sistémico central. Orientada a la aplicación profesional.",
     contenidos: [
@@ -44,7 +45,6 @@ const presentaciones = [
     subtitulo: "Aplicación práctica y tipos de constelación",
     emoji: "🔬",
     pptUrl: asset("/media/Organizational_Constellations_Practice.pptx"),
-    coverImg: asset("/media/Guía_de_Constelaciones_Organizacionales.png"),
     descripcion:
       "Presentación centrada en la práctica de los cuatro tipos de constelación organizacional. Incluye casos de aplicación, criterios de elección del formato adecuado y guías paso a paso para cada modalidad. Es la síntesis operativa de todo el aprendizaje de la Lección 9.",
     contenidos: [
@@ -57,7 +57,48 @@ const presentaciones = [
   },
 ];
 
-export default function Presentaciones() {
+function PPTViewer({ pptUrl }) {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+  const absoluteUrl = BASE_URL + pptUrl;
+  // Google Docs viewer works reliably for publicly hosted PPTX files
+  const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
+
+  return (
+    <div className="relative w-full bg-[#f0ece4]" style={{ aspectRatio: "16/9" }}>
+      {!loaded && !error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#1a3d2b]/50">
+          <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+          <span className="font-lato text-sm">Cargando presentación…</span>
+          <span className="font-lato text-xs text-[#1a3d2b]/35">(puede tardar unos segundos)</span>
+        </div>
+      )}
+      {error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#1a3d2b]/50 px-6 text-center">
+          <span className="text-3xl">📊</span>
+          <span className="font-lato text-sm">El visor no pudo cargar esta presentación.</span>
+          <span className="font-lato text-xs text-[#1a3d2b]/35">Intentá recargando la página o usando el botón de descarga.</span>
+        </div>
+      )}
+      <iframe
+        src={viewerUrl}
+        title="Visor de presentación"
+        className="w-full h-full border-0"
+        style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.3s" }}
+        onLoad={() => setLoaded(true)}
+        onError={() => setError(true)}
+        allowFullScreen
+      />
+    </div>
+  );
+}
+
+export default function Presentaciones({ plan = 'vip', puedeDescargar = true }) {
+  const [expandido, setExpandido] = useState({});
+
+  const toggleExpandido = (id) =>
+    setExpandido(prev => ({ ...prev, [id]: !prev[id] }));
+
   return (
     <div className="space-y-12 max-w-4xl">
       <SectionHeader
@@ -93,63 +134,54 @@ export default function Presentaciones() {
                 </p>
               </div>
             </div>
-            <a
-              href={pres.pptUrl}
-              download
-              className="flex items-center gap-2 text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-2 rounded-full transition-all border border-white/20 whitespace-nowrap"
-            >
-              <Download className="w-3 h-3" /> Descargar PPT
-            </a>
-          </div>
-
-          {/* Vista previa con overlay */}
-          <div className="relative aspect-[16/9] w-full bg-verde-oscuro/5 overflow-hidden group">
-            <img
-              src={pres.coverImg}
-              alt={`Presentación ${pres.titulo}`}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[2px]">
+            {puedeDescargar && (
               <a
                 href={pres.pptUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-dorado text-verde-oscuro font-bold px-6 py-2.5 rounded-full flex items-center gap-2 shadow-lg hover:bg-dorado-claro transition-all"
+                download
+                className="flex items-center gap-2 text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-2 rounded-full transition-all border border-white/20 whitespace-nowrap flex-shrink-0"
               >
-                <ExternalLink className="w-5 h-5" /> Abrir Presentación
+                <Download className="w-3 h-3" /> Descargar PPT
               </a>
-              <p className="text-white/70 text-xs mt-3 font-lato italic">
-                Se recomienda descargar para mejor visualización
-              </p>
-            </div>
+            )}
           </div>
 
-          {/* Descripción + Contenidos */}
-          <div className="p-6 space-y-5">
-            <div>
-              <h4 className="font-playfair font-bold text-[#1a3d2b] text-lg mb-2">
-                Descripción
-              </h4>
-              <p className="text-[#1a3d2b]/75 font-lato text-[15px] leading-relaxed">
-                {pres.descripcion}
-              </p>
-            </div>
+          {/* Visor embebido Office Online */}
+          <PPTViewer pptUrl={pres.pptUrl} />
 
-            <div className="bg-[#fdf8ee] rounded-xl p-5 border border-dorado/20">
-              <h4 className="font-lato font-bold text-[#7a5c00] text-sm uppercase tracking-wider mb-3">
-                Contenidos de la presentación
-              </h4>
-              <ul className="space-y-2">
-                {pres.contenidos.map((item, j) => (
-                  <li key={j} className="flex items-start gap-2">
-                    <span className="text-dorado mt-1 flex-shrink-0 text-sm">▸</span>
-                    <span className="text-[#1a3d2b]/80 font-lato text-[14px] leading-snug">
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Descripción siempre visible + Contenidos colapsables */}
+          <div className="border-t border-crema px-6 pt-5 pb-2">
+            <p className="text-[#1a3d2b]/75 font-lato text-[15px] leading-relaxed">
+              {pres.descripcion}
+            </p>
+          </div>
+
+          <div className="border-t border-crema/60">
+            <button
+              onClick={() => toggleExpandido(pres.id)}
+              className="w-full flex items-center justify-between px-6 py-3 text-[#7a5c00] font-lato font-bold text-sm hover:bg-[#fdf8ee] transition-colors"
+            >
+              <span>Ver contenidos de la presentación</span>
+              {expandido[pres.id]
+                ? <ChevronUp className="w-4 h-4" />
+                : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {expandido[pres.id] && (
+              <div className="px-6 pb-6">
+                <div className="bg-[#fdf8ee] rounded-xl p-5 border border-dorado/20">
+                  <ul className="space-y-2">
+                    {pres.contenidos.map((item, j) => (
+                      <li key={j} className="flex items-start gap-2">
+                        <span className="text-dorado mt-1 flex-shrink-0 text-sm">▸</span>
+                        <span className="text-[#1a3d2b]/80 font-lato text-[14px] leading-snug">
+                          {item}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
       ))}
