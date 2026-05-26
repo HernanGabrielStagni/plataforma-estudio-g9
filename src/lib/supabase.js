@@ -7,6 +7,10 @@ export const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null
 
+export const APP_URL = import.meta.env.VITE_APP_URL || 'https://hernangabrielstagni.github.io/plataforma-estudio-g9/'
+export const DIAS_TRIAL = Number(import.meta.env.VITE_DIAS_TRIAL) || 7
+export const REGISTRO_ABIERTO = import.meta.env.VITE_REGISTRO_ABIERTO !== 'false'
+
 export function getSessionId() {
   let sessionId = localStorage.getItem('espacio_semillas_session_id_g9')
   if (!sessionId) {

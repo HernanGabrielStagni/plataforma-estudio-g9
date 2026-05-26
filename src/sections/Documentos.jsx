@@ -1,7 +1,12 @@
+import { useRef, useState } from "react";
 import { asset } from "../lib/assets";
 import { motion } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
 import { FileText, BookOpen, Download, ExternalLink, FileCheck, Music } from "lucide-react";
+import PlanOverlay from "../components/PlanOverlay";
+import PDFViewer from "../components/PDFViewer";
+
+const TRIAL_LIMIT = 4 * 60
 
 const documentos = [
   {
@@ -61,7 +66,47 @@ const documentos = [
   },
 ];
 
-export default function Documentos() {
+function AudioPlayer({ src, plan }) {
+  const audioRef = useRef(null)
+  const [bloqueado, setBloqueado] = useState(false)
+
+  function handleTimeUpdate() {
+    if (plan !== 'trial') return
+    if (audioRef.current && audioRef.current.currentTime >= TRIAL_LIMIT) {
+      audioRef.current.pause()
+      setBloqueado(true)
+    }
+  }
+
+  function handleClose() {
+    setBloqueado(false)
+    if (audioRef.current) audioRef.current.currentTime = 0
+  }
+
+  return (
+    <div style={{ position: 'relative' }} className="px-6 pt-5 pb-2">
+      <audio
+        ref={audioRef}
+        controls
+        preload="metadata"
+        className="w-full rounded-lg"
+        style={{ accentColor: "#c9a84c" }}
+        onTimeUpdate={handleTimeUpdate}
+      >
+        <source src={src} type="audio/mp4" />
+        Tu navegador no soporta el reproductor de audio.
+      </audio>
+      {bloqueado && (
+        <div style={{ position: 'absolute', inset: 0, padding: '0 24px 8px' }}>
+          <PlanOverlay tipo="audio" onClose={handleClose} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function Documentos({ plan = 'vip', puedeDescargar = true }) {
+
   return (
     <div className="space-y-10 max-w-4xl">
       <SectionHeader
@@ -75,6 +120,14 @@ export default function Documentos() {
         descargarlos para poder estudiarlos con mayor comodidad.
       </p>
 
+      {!puedeDescargar && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 text-sm text-amber-800 -mt-4">
+          {plan === 'trial'
+            ? <span>☀️ <strong>Plan Trial:</strong> podés ver los primeros 4 minutos del audio y los PDFs en el navegador. Mejorá tu plan para descargar.</span>
+            : <span>🌞 <strong>Plan Pro:</strong> podés ver y escuchar todo el contenido. El plan VIP incluye descarga de archivos.</span>}
+        </div>
+      )}
+
       <div className="space-y-8">
         {documentos.map((doc, i) => {
           const Icon = doc.icon;
@@ -87,21 +140,15 @@ export default function Documentos() {
               className="bg-white rounded-2xl border border-crema shadow-card overflow-hidden"
             >
               {/* Encabezado */}
-              <div
-                className={`bg-gradient-to-r ${doc.color} px-6 py-4 flex items-center justify-between`}
-              >
+              <div className={`bg-gradient-to-r ${doc.color} px-6 py-4 flex items-center justify-between`}>
                 <div className="flex items-center gap-3">
                   <Icon className="w-6 h-6 text-white/80" />
                   <div>
                     <div className="flex items-center gap-2">
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded ${doc.colorBadge} uppercase tracking-widest`}
-                      >
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${doc.colorBadge} uppercase tracking-widest`}>
                         {doc.tipo}
                       </span>
-                      <span className="text-white/60 text-xs font-lato">
-                        {doc.subtitulo}
-                      </span>
+                      <span className="text-white/60 text-xs font-lato">{doc.subtitulo}</span>
                     </div>
                     <h3 className="text-white font-playfair text-lg font-black mt-0.5 m-0 !text-white !shadow-none">
                       {doc.titulo}
@@ -109,14 +156,16 @@ export default function Documentos() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <a
-                    href={doc.src}
-                    download
-                    className="flex items-center gap-1.5 text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-2 rounded-full transition-all border border-white/20"
-                  >
-                    <Download className="w-3 h-3" /> Descargar
-                  </a>
-                  {doc.showPdf && (
+                  {puedeDescargar && (
+                    <a
+                      href={doc.src}
+                      download
+                      className="flex items-center gap-1.5 text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-2 rounded-full transition-all border border-white/20"
+                    >
+                      <Download className="w-3 h-3" /> Descargar
+                    </a>
+                  )}
+                  {doc.showPdf && puedeDescargar && (
                     <a
                       href={doc.src}
                       target="_blank"
@@ -129,32 +178,20 @@ export default function Documentos() {
                 </div>
               </div>
 
-              {/* Reproductor de audio */}
-              {doc.isAudio && (
-                <div className="px-6 pt-5 pb-2">
-                  <audio
-                    controls
-                    preload="metadata"
-                    className="w-full rounded-lg"
-                    style={{ accentColor: "#c9a84c" }}
-                  >
-                    <source src={doc.src} type="audio/mp4" />
-                    Tu navegador no soporta el reproductor de audio.
-                  </audio>
-                </div>
+              {/* Visor PDF embebido para usuarios sin descarga */}
+              {doc.showPdf && !puedeDescargar && (
+                <PDFViewer src={doc.src} />
               )}
+
+              {/* Reproductor de audio con restricción */}
+              {doc.isAudio && <AudioPlayer src={doc.src} plan={plan} />}
 
               {/* Cuerpo */}
               <div className="p-6 space-y-5">
                 <div>
-                  <h4 className="font-playfair font-bold text-[#1a3d2b] text-lg mb-2">
-                    Descripción
-                  </h4>
-                  <p className="text-[#1a3d2b]/75 font-lato text-[15px] leading-relaxed">
-                    {doc.descripcion}
-                  </p>
+                  <h4 className="font-playfair font-bold text-[#1a3d2b] text-lg mb-2">Descripción</h4>
+                  <p className="text-[#1a3d2b]/75 font-lato text-[15px] leading-relaxed">{doc.descripcion}</p>
                 </div>
-
                 <div className="bg-[#f5f0e8] rounded-xl p-5 border border-dorado/15">
                   <h4 className="font-lato font-bold text-[#7a5c00] text-xs uppercase tracking-wider mb-3">
                     Cómo aprovechar este material
@@ -163,9 +200,7 @@ export default function Documentos() {
                     {doc.indicaciones.map((ind, j) => (
                       <li key={j} className="flex items-start gap-2">
                         <span className="text-dorado mt-0.5 flex-shrink-0">→</span>
-                        <span className="text-[#1a3d2b]/80 font-lato text-[14px] leading-snug">
-                          {ind}
-                        </span>
+                        <span className="text-[#1a3d2b]/80 font-lato text-[14px] leading-snug">{ind}</span>
                       </li>
                     ))}
                   </ul>

@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import Header from "./components/Header";
 import Sidebar, { sections } from "./components/Sidebar";
 import IntroScreen from "./components/IntroScreen";
+import AuthGate from "./components/AuthGate";
+import Configuracion from "./sections/Configuracion";
+import { usePlan } from "./lib/usePlan";
 import { recordVisit, removeVisit, getVisitedSections } from "./lib/supabase";
 
 import Inicio from "./sections/Inicio";
@@ -27,6 +30,10 @@ export default function App() {
   const [currentSection, setCurrentSection] = useState("inicio");
   const [visitedSections, setVisitedSections] = useState([]);
   const [showIntro, setShowIntro] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { plan, puedeDescargar } = usePlan(isAdminUser);
 
   useEffect(() => {
     const navigationEntries = performance.getEntriesByType("navigation");
@@ -83,47 +90,63 @@ export default function App() {
     });
   }, []);
 
-  const CurrentSectionComponent = sectionComponents[currentSection];
-
   const validSectionIds = sections.map((s) => s.id);
   const validVisitedSections = visitedSections.filter((s) =>
     validSectionIds.includes(s)
   );
 
+  const CurrentSectionComponent = currentSection === "configuracion"
+    ? () => <Configuracion isAdminUser={isAdminUser} />
+    : plan
+      ? () => {
+          const Comp = sectionComponents[currentSection]
+          return <Comp plan={plan} puedeDescargar={puedeDescargar} />
+        }
+      : () => null;
+
   return (
-    <div className="min-h-screen bg-blanco-calido texture-overlay">
-      <AnimatePresence>
-        {showIntro && (
-          <IntroScreen key="intro" onComplete={handleIntroComplete} />
-        )}
-      </AnimatePresence>
-
-      <Header
-        visitedSections={validVisitedSections}
-        totalSections={sections.length}
-      />
-
-      <Sidebar
-        currentSection={currentSection}
-        onSectionChange={handleSectionChange}
-        visitedSections={validVisitedSections}
-        onToggleVisited={handleToggleVisited}
-      />
-
-      <main className="md:ml-[280px] pt-[112px] min-h-screen">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSection}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className={`${currentSection === "quiz" ? "p-0" : "p-6 md:p-10"}`}
-          >
-            <CurrentSectionComponent />
-          </motion.div>
+    <AuthGate onAuthReady={(admin, email) => { setIsAdminUser(admin); setUserEmail(email || ''); }}>
+      <div className="min-h-screen bg-blanco-calido texture-overlay">
+        <AnimatePresence>
+          {showIntro && (
+            <IntroScreen key="intro" onComplete={handleIntroComplete} />
+          )}
         </AnimatePresence>
-      </main>
-    </div>
+
+        <Header
+          visitedSections={validVisitedSections}
+          totalSections={sections.length}
+          sidebarOpen={sidebarOpen}
+          onMenuToggle={() => setSidebarOpen(o => !o)}
+          currentSectionLabel={sections.find(s => s.id === currentSection)?.label || ''}
+        />
+
+        <Sidebar
+          currentSection={currentSection}
+          onSectionChange={handleSectionChange}
+          visitedSections={validVisitedSections}
+          onToggleVisited={handleToggleVisited}
+          userEmail={userEmail}
+          plan={plan}
+          isOpen={sidebarOpen}
+          onToggle={(v) => setSidebarOpen(v)}
+        />
+
+        <main className="md:ml-[280px] pt-[112px] min-h-screen">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSection}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className={`${currentSection === "quiz" ? "p-0" : "p-6 md:p-10"} pt-[60px] md:pt-0`}
+            >
+              <CurrentSectionComponent />
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
+    </AuthGate>
   );
 }

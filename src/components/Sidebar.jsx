@@ -1,7 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Menu,
-  X,
   CheckCircle,
   Circle,
   Home,
@@ -11,8 +9,10 @@ import {
   FileText,
   BookOpen,
   CheckSquare,
+  Settings,
+  LogOut,
+  User,
 } from "lucide-react";
-import { useState } from "react";
 
 const groups = [
   {
@@ -42,22 +42,79 @@ const groups = [
       { id: "quiz", label: "Examen de Unidad", icon: CheckSquare, isQuiz: true },
     ],
   },
+  {
+    label: null,
+    items: [
+      { id: "configuracion", label: "Configuración", icon: Settings, noVisit: true },
+    ],
+  },
 ];
 
 const sections = groups.flatMap((g) => g.items);
 export { sections };
+
+const PLAN_LABELS = { vip: 'VIP ✦', pro: 'Pro', trial: 'Trial' };
+const PLAN_STYLES = {
+  vip:   'bg-gradient-to-r from-[#c9a84c] to-[#f0d070] text-[#1a3d2b] shadow-[0_2px_8px_rgba(201,168,76,0.5)]',
+  pro:   'bg-gradient-to-r from-[#2d8a5f] to-[#3aad7a] text-white shadow-[0_2px_8px_rgba(45,138,95,0.4)]',
+  trial: 'bg-[#1a3d2b]/50 text-white/70',
+};
+
+function UserFooter({ userEmail, plan }) {
+  const handleLogout = () => {
+    if (typeof window.cerrarSesion === 'function') window.cerrarSesion();
+  };
+  const nombre = userEmail ? userEmail.split('@')[0] : '';
+  return (
+    <div className="mx-3 mb-4 mt-2 rounded-2xl overflow-hidden border border-white/15 shadow-lg"
+         style={{ background: 'linear-gradient(135deg, rgba(26,61,43,0.7) 0%, rgba(20,50,35,0.9) 100%)', backdropFilter: 'blur(8px)' }}>
+      {/* Info usuario */}
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3">
+        <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-[#c9a84c]/50"
+             style={{ background: 'rgba(201,168,76,0.15)' }}>
+          <User className="w-4 h-4 text-[#c9a84c]" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-lato font-bold text-[13px] truncate leading-tight">{nombre}</p>
+          <p className="text-white/45 font-lato text-[10px] truncate leading-none mt-0.5">{userEmail}</p>
+        </div>
+        {plan && (
+          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full flex-shrink-0 tracking-wide ${PLAN_STYLES[plan] || PLAN_STYLES.trial}`}>
+            {PLAN_LABELS[plan] || plan}
+          </span>
+        )}
+      </div>
+
+      {/* Separador */}
+      <div className="mx-4 h-px bg-white/10 mb-3" />
+
+      {/* Botón cerrar sesión */}
+      <div className="px-3 pb-3">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-lato font-bold text-xs tracking-wide transition-all duration-200 border border-red-400/40 text-red-300 hover:text-white hover:bg-red-500 hover:border-red-500 hover:shadow-[0_4px_14px_rgba(239,68,68,0.4)]"
+          style={{ background: 'rgba(239,68,68,0.12)' }}
+        >
+          <LogOut className="w-3.5 h-3.5" /> Cerrar sesión
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function Sidebar({
   currentSection,
   onSectionChange,
   visitedSections,
   onToggleVisited,
+  userEmail = '',
+  plan = null,
+  isOpen = false,
+  onToggle = () => {},
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-
   const handleSectionClick = (sectionId) => {
     onSectionChange(sectionId);
-    setIsOpen(false);
+    onToggle(false);
   };
 
   const NavContent = () => (
@@ -190,30 +247,15 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Botón hamburguesa (móvil) */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-[120px] left-4 z-40 md:hidden bg-verde-oscuro text-white p-2.5 rounded-full shadow-lg hover:bg-verde-medio transition-colors"
-        aria-label="Abrir menú"
-      >
-        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
-
       {/* Sidebar desktop */}
       <aside className="hidden md:flex flex-col fixed left-0 top-[112px] bottom-0 w-[280px] bg-[#8fb49b] border-r-2 border-[#c9a84c]/10 overflow-y-auto">
         <NavContent />
-        <div className="mt-auto px-6 py-6 border-t border-verde-oscuro/10 bg-black/10">
-          <p className="text-[10px] text-verde-oscuro font-lato text-center leading-relaxed font-black tracking-[0.15em]">
-            PLATAFORMA · GUÍA 9
-            <br />
-            <span className="text-[#ffea00] font-allura text-[20px] tracking-normal drop-shadow-md block mt-1">
-              Espacio Semillas
-            </span>
-          </p>
+        <div className="mt-auto">
+          <UserFooter userEmail={userEmail} plan={plan} />
         </div>
       </aside>
 
-      {/* Sidebar móvil */}
+      {/* Sidebar móvil — se abre desde el header */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -222,16 +264,19 @@ export default function Sidebar({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/40 z-30 md:hidden backdrop-blur-sm"
-              onClick={() => setIsOpen(false)}
+              onClick={() => onToggle(false)}
             />
             <motion.aside
               initial={{ x: -320 }}
               animate={{ x: 0 }}
               exit={{ x: -320 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-[112px] bottom-0 w-[300px] bg-[#8fb49b] z-40 md:hidden overflow-y-auto shadow-2xl"
+              className="fixed left-0 top-[56px] bottom-0 w-[300px] bg-[#8fb49b] z-40 md:hidden overflow-y-auto shadow-2xl flex flex-col"
             >
               <NavContent />
+              <div className="mt-auto">
+                <UserFooter userEmail={userEmail} plan={plan} />
+              </div>
             </motion.aside>
           </>
         )}

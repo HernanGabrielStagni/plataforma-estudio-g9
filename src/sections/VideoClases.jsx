@@ -1,7 +1,11 @@
+import { useRef, useState } from "react";
 import { asset } from "../lib/assets";
 import { motion } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
 import { PlayCircle } from "lucide-react";
+import PlanOverlay from "../components/PlanOverlay";
+
+const TRIAL_LIMIT = 4 * 60 // 4 minutos en segundos
 
 const videos = [
   {
@@ -51,7 +55,41 @@ const videos = [
   },
 ];
 
-export default function VideoClases() {
+function VideoPlayer({ src, plan }) {
+  const videoRef = useRef(null)
+  const [bloqueado, setBloqueado] = useState(false)
+
+  function handleTimeUpdate() {
+    if (plan !== 'trial') return
+    if (videoRef.current && videoRef.current.currentTime >= TRIAL_LIMIT) {
+      videoRef.current.pause()
+      setBloqueado(true)
+    }
+  }
+
+  function handleClose() {
+    setBloqueado(false)
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0
+    }
+  }
+
+  return (
+    <div style={{ position: 'relative' }} className="aspect-video w-full bg-black">
+      <video
+        ref={videoRef}
+        src={src}
+        controls
+        preload="metadata"
+        className="w-full h-full object-contain"
+        onTimeUpdate={handleTimeUpdate}
+      />
+      {bloqueado && <PlanOverlay tipo="video" onClose={handleClose} />}
+    </div>
+  )
+}
+
+export default function VideoClases({ plan = 'vip' }) {
   return (
     <div className="space-y-12 max-w-4xl">
       <SectionHeader
@@ -59,6 +97,12 @@ export default function VideoClases() {
         title="Video Clases"
         subtitle="Tres clases que forman el núcleo teórico y práctico de la Lección 9"
       />
+
+      {plan === 'trial' && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 text-sm text-amber-800 -mt-4">
+          ☀️ <strong>Plan Trial:</strong> podés ver los primeros 4 minutos de cada video. Mejorá tu plan para acceso completo.
+        </div>
+      )}
 
       {videos.map((video, i) => (
         <motion.div
@@ -68,7 +112,6 @@ export default function VideoClases() {
           transition={{ duration: 0.6, delay: i * 0.15 }}
           className="bg-white rounded-2xl border border-crema shadow-card overflow-hidden"
         >
-          {/* Encabezado del video */}
           <div className="bg-gradient-to-r from-[#1a3d2b] to-[#2d6a4f] px-6 py-4 flex items-center gap-3">
             <span className="text-2xl">{video.emoji}</span>
             <div>
@@ -87,17 +130,8 @@ export default function VideoClases() {
             </div>
           </div>
 
-          {/* Reproductor */}
-          <div className="aspect-video w-full bg-black">
-            <video
-              src={video.src}
-              controls
-              preload="metadata"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <VideoPlayer src={video.src} plan={plan} />
 
-          {/* Descripción + Conceptos */}
           <div className="p-6 space-y-5">
             <div>
               <h4 className="font-playfair font-bold text-[#1a3d2b] text-lg mb-2">
