@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "../lib/supabase";
 import {
   CheckCircle,
   Circle,
@@ -60,7 +62,19 @@ const PLAN_STYLES = {
   trial: 'bg-[#1a3d2b]/50 text-white/70',
 };
 
-function UserFooter({ userEmail, plan }) {
+function UserFooter({ plan }) {
+  const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    supabase?.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email) setUserEmail(session.user.email);
+    });
+    const { data: listener } = supabase?.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email || '');
+    }) || {};
+    return () => listener?.subscription?.unsubscribe();
+  }, []);
+
   const handleLogout = () => {
     if (typeof window.cerrarSesion === 'function') window.cerrarSesion();
   };
@@ -251,7 +265,7 @@ export default function Sidebar({
       <aside className="hidden md:flex flex-col fixed left-0 top-[112px] bottom-0 w-[280px] bg-[#8fb49b] border-r-2 border-[#c9a84c]/10 overflow-y-auto">
         <NavContent />
         <div className="mt-auto">
-          <UserFooter userEmail={userEmail} plan={plan} />
+          <UserFooter plan={plan} />
         </div>
       </aside>
 
@@ -275,7 +289,7 @@ export default function Sidebar({
             >
               <NavContent />
               <div className="mt-auto">
-                <UserFooter userEmail={userEmail} plan={plan} />
+                <UserFooter plan={plan} />
               </div>
             </motion.aside>
           </>

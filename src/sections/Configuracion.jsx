@@ -37,13 +37,19 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
   const [userTrialEnd, setUserTrialEnd] = useState(null)
   const [planClickeado, setPlanClickeado] = useState(null)
 
-  // Sincronizar cuando el prop llega después del montaje
   useEffect(() => {
     if (emailProp) setUserEmail(emailProp)
   }, [emailProp])
 
   useEffect(() => {
     loadCurrentUser()
+    const { data: listener } = supabase?.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.email) setUserEmail(session.user.email)
+    }) || {}
+    return () => listener?.subscription?.unsubscribe()
+  }, [])
+
+  useEffect(() => {
     if (isAdminUser) {
       fetchRegisteredUsers()
       fetchAdminEmails()
