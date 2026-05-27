@@ -167,19 +167,51 @@ export default function Configuracion({ isAdminUser }) {
       <h2 style={{ color: '#1a3d2b', fontWeight: 900, fontSize: '1.6rem', marginBottom: 6 }}>
         ⚙️ Configuración
       </h2>
-      <p style={{ color: '#666', marginBottom: 24, fontSize: '0.9rem' }}>
-        {userEmail}
-        {isAdminUser && <span style={{
-          marginLeft: 10, fontSize: '11px', fontWeight: 700,
-          background: '#1565C0', color: '#fff',
-          borderRadius: 20, padding: '2px 10px'
-        }}>👑 Admin</span>}
-      </p>
+
+      {/* Identificación del usuario */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+        background: 'white', borderRadius: 12, padding: '12px 18px',
+        boxShadow: '0 2px 12px rgba(26,61,43,0.10)', marginBottom: 20,
+        border: '1px solid rgba(26,61,43,0.08)'
+      }}>
+        <div style={{
+          width: 36, height: 36, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #1a3d2b, #2d6a4f)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, fontSize: 16
+        }}>👤</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '11px', color: '#999', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Usuario conectado
+          </div>
+          <div style={{ fontSize: '14px', color: '#1a3d2b', fontWeight: 700, wordBreak: 'break-all' }}>
+            {userEmail}
+          </div>
+        </div>
+        {isAdminUser && (
+          <span style={{
+            fontSize: '11px', fontWeight: 700,
+            background: '#1565C0', color: '#fff',
+            borderRadius: 20, padding: '4px 12px', flexShrink: 0
+          }}>👑 Admin</span>
+        )}
+      </div>
 
       {/* Plan actual */}
       {!isAdminUser && (
         <div style={cardStyle}>
-          <h3 style={{ margin: '0 0 16px', color: '#1a3d2b', fontSize: '1rem' }}>Mi plan</h3>
+          {/* Encabezado "Mi plan" con email */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+            <h3 style={{ margin: 0, color: '#1a3d2b', fontSize: '1rem' }}>Mi plan</h3>
+            <span style={{
+              fontSize: '12px', color: '#555', fontWeight: 600,
+              background: '#f0f7f3', border: '1px solid #b2d8c2',
+              borderRadius: 20, padding: '3px 12px', wordBreak: 'break-all'
+            }}>
+              {userEmail}
+            </span>
+          </div>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
             {PLANES.map(plan => {
