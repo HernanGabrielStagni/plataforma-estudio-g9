@@ -95,14 +95,15 @@ export default function App() {
     validSectionIds.includes(s)
   );
 
-  const CurrentSectionComponent = currentSection === "configuracion"
-    ? () => <Configuracion isAdminUser={isAdminUser} userEmail={userEmail} />
-    : plan
-      ? () => {
-          const Comp = sectionComponents[currentSection]
-          return <Comp plan={plan} puedeDescargar={puedeDescargar} />
-        }
-      : () => null;
+  const renderSection = () => {
+    if (currentSection === "configuracion") {
+      return <Configuracion isAdminUser={isAdminUser} userEmail={userEmail} />;
+    }
+    if (!plan) return null;
+    const Comp = sectionComponents[currentSection];
+    if (!Comp) return null;
+    return <Comp plan={plan} puedeDescargar={puedeDescargar} />;
+  };
 
   return (
     <AuthGate onAuthReady={(admin, email) => { setIsAdminUser(admin); setUserEmail(email || ''); }}>
@@ -142,7 +143,7 @@ export default function App() {
               transition={{ duration: 0.4, ease: "easeInOut" }}
               className={`${currentSection === "quiz" ? "p-0" : "p-6 md:p-10"} pt-[60px] md:pt-0`}
             >
-              <CurrentSectionComponent />
+              {renderSection()}
             </motion.div>
           </AnimatePresence>
         </main>

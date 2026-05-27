@@ -37,6 +37,11 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
   const [userTrialEnd, setUserTrialEnd] = useState(null)
   const [planClickeado, setPlanClickeado] = useState(null)
 
+  // Sincronizar cuando el prop llega después del montaje
+  useEffect(() => {
+    if (emailProp) setUserEmail(emailProp)
+  }, [emailProp])
+
   useEffect(() => {
     loadCurrentUser()
     if (isAdminUser) {
