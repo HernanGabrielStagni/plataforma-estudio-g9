@@ -98,7 +98,7 @@ export default function Presentaciones({ plan = 'vip', puedeDescargar = true }) 
           </div>
 
           {/* Visor PDF embebido — con descarga según plan */}
-          <PDFViewer src={pres.pdfSrc} puedeDescargar={puedeDescargar} />
+          <PDFViewer src={pres.pdfSrc} puedeDescargar={puedeDescargar} presentation />
 
           {/* Descripción siempre visible */}
           <div className="border-t border-crema px-6 pt-5 pb-2">
