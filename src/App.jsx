@@ -6,7 +6,7 @@ import IntroScreen from "./components/IntroScreen";
 import AuthGate from "./components/AuthGate";
 import Configuracion from "./sections/Configuracion";
 import { usePlan } from "./lib/usePlan";
-import { recordVisit, removeVisit, getVisitedSections } from "./lib/supabase";
+import { supabase, recordVisit, removeVisit, getVisitedSections } from "./lib/supabase";
 
 import Inicio from "./sections/Inicio";
 import VideoClases from "./sections/VideoClases";
@@ -87,6 +87,15 @@ export default function App() {
     setVisitedSections((prev) => {
       if (prev.includes("inicio")) return prev;
       return [...prev, "inicio"];
+    });
+  }, []);
+
+  useEffect(() => {
+    supabase?.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+        setIsAdminUser(session.user.email === 'psicologohernanstagni@gmail.com');
+      }
     });
   }, []);
 

@@ -51,15 +51,16 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
   }, [isAdminUser])
 
   async function loadCurrentUser() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    setUserEmail(user.email)
+    const { data: { session } } = await supabase.auth.getSession()
+    const email = session?.user?.email
+    if (!email) return
+    setUserEmail(email)
     // Cargar datos del plan del usuario actual
     try {
       const { data } = await supabase
         .from('registered_users')
         .select('status, trial_end')
-        .eq('email', user.email)
+        .eq('email', email)
         .maybeSingle()
       if (data) {
         setUserStatus(data.status)
