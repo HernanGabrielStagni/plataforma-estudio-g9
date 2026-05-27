@@ -183,7 +183,7 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
         }}>👤</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: '11px', color: '#999', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Usuario conectado
+            Sesión activa
           </div>
           <div style={{ fontSize: '14px', color: '#1a3d2b', fontWeight: 700, wordBreak: 'break-all' }}>
             {userEmail}
