@@ -16,12 +16,12 @@ export function usePlan(isAdminUser) {
 
     async function load() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) { setPlan('trial'); return }
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session?.user?.email) { setPlan('trial'); return }
         const { data } = await supabase
           .from('registered_users')
           .select('status, trial_end, puede_descargar')
-          .eq('email', user.email)
+          .eq('email', session.user.email)
           .maybeSingle()
         if (!data) { setPlan('trial'); return }
         if (data.status === 'vip') {
