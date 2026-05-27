@@ -9,6 +9,7 @@ export default function AuthGate({ children, onAuthReady }) {
   const [modo, setModo] = useState('login') // 'login'|'register'|'reset'|'newpassword'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [nombre, setNombre] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
@@ -56,6 +57,7 @@ export default function AuthGate({ children, onAuthReady }) {
   async function handleSubmit() {
     if (!email || !password) { setError('Completá email y contraseña.'); return }
     if (password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres.'); return }
+    if (modo === 'register' && !nombre.trim()) { setError('Ingresá tu nombre y apellido.'); return }
     if (modo === 'register' && !REGISTRO_ABIERTO) {
       setError('El registro está deshabilitado. Contactá al administrador.'); return
     }
@@ -78,7 +80,7 @@ export default function AuthGate({ children, onAuthReady }) {
 
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-      await registrarOActualizarUsuario(user.email)
+      await registrarOActualizarUsuario(user.email, modo === 'register' ? nombre.trim() : undefined)
       const access = await checkUserAccess(user.email)
       const adminResult = await checkIsAdmin(user.email)
       isAdmin = adminResult
@@ -128,7 +130,7 @@ export default function AuthGate({ children, onAuthReady }) {
     setIsAdminUser(false)
     setEstado('login')
     setModo('login')
-    setEmail(''); setPassword(''); setError(''); setMensaje('')
+    setEmail(''); setPassword(''); setNombre(''); setError(''); setMensaje('')
   }
 
   window.cerrarSesion = handleLogout
@@ -227,6 +229,20 @@ export default function AuthGate({ children, onAuthReady }) {
               onChange={e => setEmail(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && (modo === 'reset' ? handleReset() : handleSubmit())}
               placeholder="tu@email.com"
+              style={inputStyle}
+            />
+          </div>
+        )}
+
+        {/* Campo nombre (solo registro) */}
+        {modo === 'register' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={labelStyle}>Nombre y Apellido</label>
+            <input
+              type="text" value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              placeholder="Juan Pérez"
               style={inputStyle}
             />
           </div>

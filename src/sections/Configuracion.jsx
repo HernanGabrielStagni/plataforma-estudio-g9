@@ -79,7 +79,7 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
     try {
       const { data, error } = await supabase
         .from('registered_users')
-        .select('email, ultimo_login, status, trial_start, trial_end, puede_descargar')
+        .select('email, nombre, ultimo_login, status, trial_start, trial_end, puede_descargar')
         .order('ultimo_login', { ascending: false })
       if (!error && data) setRegisteredUsers(data)
     } catch(e) { console.warn(e) }
@@ -124,6 +124,12 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
       .eq('email', email)
     if (error) { console.error(error); return }
     fetchRegisteredUsers()
+  }
+
+  async function eliminarUsuario(emailAEliminar) {
+    if (!window.confirm(`¿Eliminar la cuenta de ${emailAEliminar}?`)) return
+    setRegisteredUsers(prev => prev.filter(u => u.email !== emailAEliminar))
+    await supabase.from('registered_users').delete().eq('email', emailAEliminar)
   }
 
   async function addAdminEmail(emailParam) {
@@ -401,9 +407,16 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
                           borderBottom: '1px solid rgba(0,0,0,.05)'
                         }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                            <span style={{ fontSize: '11px', color: '#555', flex: 1, wordBreak: 'break-all' }}>
-                              {u.email}
-                            </span>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              {u.nombre && (
+                                <div style={{ fontSize: '12px', fontWeight: 700, color: '#1a3d2b', wordBreak: 'break-all' }}>
+                                  {u.nombre}
+                                </div>
+                              )}
+                              <span style={{ fontSize: '11px', color: '#555', wordBreak: 'break-all' }}>
+                                {u.email}
+                              </span>
+                            </div>
                             <span style={{
                               fontSize: '10px', fontWeight: 700,
                               background: badge.bg, color: '#fff',
@@ -416,6 +429,15 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
                                 borderRadius: 20, padding: '2px 10px'
                               }}>👑 Admin</span>
                             )}
+                            <button
+                              onClick={() => eliminarUsuario(u.email)}
+                              title="Eliminar cuenta"
+                              style={{
+                                background: 'none', border: 'none', cursor: 'pointer',
+                                color: '#C0392B', fontSize: '14px', padding: '0 2px',
+                                lineHeight: 1, flexShrink: 0
+                              }}
+                            >🗑</button>
                           </div>
 
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
