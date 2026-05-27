@@ -62,21 +62,43 @@ const PLAN_STYLES = {
   trial: 'bg-[#1a3d2b]/50 text-white/70',
 };
 
+function getEmailFromStorage() {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.includes('-auth-token')) {
+        const val = JSON.parse(localStorage.getItem(key) || '{}');
+        const email = val?.user?.email;
+        if (email) return email;
+      }
+    }
+  } catch(e) {}
+  return '';
+}
+
 function UserFooter({ plan }) {
-  const [userEmail, setUserEmail] = useState('');
+  const [userEmail, setUserEmail] = useState(() => getEmailFromStorage());
 
   useEffect(() => {
+    // Intento 1: leer de localStorage inmediatamente
+    const stored = getEmailFromStorage();
+    if (stored) setUserEmail(stored);
+
+    // Intento 2: getSession async
     supabase?.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.email) setUserEmail(session.user.email);
     });
+
+    // Intento 3: escuchar cambios de auth
     const { data: listener } = supabase?.auth.onAuthStateChange((_event, session) => {
-      setUserEmail(session?.user?.email || '');
+      if (session?.user?.email) setUserEmail(session.user.email);
     }) || {};
     return () => listener?.subscription?.unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    if (typeof window.cerrarSesion === 'function') window.cerrarSesion();
+  const handleLogout = async () => {
+    if (supabase) await supabase.auth.signOut();
+    window.location.reload();
   };
   const nombre = userEmail ? userEmail.split('@')[0] : '';
   return (
