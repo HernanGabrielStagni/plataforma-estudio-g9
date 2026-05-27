@@ -2,9 +2,8 @@ import { asset } from "../lib/assets";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { SectionHeader } from "../components/UIComponents";
-import { Presentation, Download, ChevronDown, ChevronUp } from "lucide-react";
-
-const BASE_URL = "https://hernangabrielstagni.github.io";
+import { Presentation, ChevronDown, ChevronUp } from "lucide-react";
+import PDFViewer from "../components/PDFViewer";
 
 const presentaciones = [
   {
@@ -12,7 +11,7 @@ const presentaciones = [
     titulo: "Arquitectura Invisible Organizacional",
     subtitulo: "Bases teóricas y campo de conocimiento",
     emoji: "🏗️",
-    pptUrl: asset("/media/Arquitectura_Invisible_Organizacional.pptx"),
+    pdfSrc: asset("/media/Arquitectura_Invisible_Organizacional.pdf"),
     descripcion:
       "Esta presentación introduce el concepto de arquitectura invisible en las organizaciones: las estructuras, lealtades y órdenes que no aparecen en ningún organigrama pero determinan de manera decisiva el funcionamiento del sistema. Explora la transición desde las constelaciones familiares hacia el entorno organizacional.",
     contenidos: [
@@ -28,7 +27,7 @@ const presentaciones = [
     titulo: "Systemic Facilitation Toolkit",
     subtitulo: "Herramientas para el facilitador sistémico",
     emoji: "🧰",
-    pptUrl: asset("/media/Systemic_Facilitation_Toolkit.pptx"),
+    pdfSrc: asset("/media/Systemic_Facilitation_Toolkit.pdf"),
     descripcion:
       "Guía práctica de herramientas para el facilitador de constelaciones organizacionales. Presenta técnicas de apertura, tipos de preguntas, manejo del campo y estrategias para acompañar al cliente en la identificación del problema sistémico central. Orientada a la aplicación profesional.",
     contenidos: [
@@ -44,7 +43,7 @@ const presentaciones = [
     titulo: "Organizational Constellations Practice",
     subtitulo: "Aplicación práctica y tipos de constelación",
     emoji: "🔬",
-    pptUrl: asset("/media/Organizational_Constellations_Practice.pptx"),
+    pdfSrc: asset("/media/Organizational_Constellations_Practice.pdf"),
     descripcion:
       "Presentación centrada en la práctica de los cuatro tipos de constelación organizacional. Incluye casos de aplicación, criterios de elección del formato adecuado y guías paso a paso para cada modalidad. Es la síntesis operativa de todo el aprendizaje de la Lección 9.",
     contenidos: [
@@ -56,42 +55,6 @@ const presentaciones = [
     ],
   },
 ];
-
-function PPTViewer({ pptUrl }) {
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
-  const absoluteUrl = BASE_URL + pptUrl;
-  // Google Docs viewer works reliably for publicly hosted PPTX files
-  const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
-
-  return (
-    <div className="relative w-full bg-[#f0ece4]" style={{ aspectRatio: "16/9" }}>
-      {!loaded && !error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#1a3d2b]/50">
-          <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
-          <span className="font-lato text-sm">Cargando presentación…</span>
-          <span className="font-lato text-xs text-[#1a3d2b]/35">(puede tardar unos segundos)</span>
-        </div>
-      )}
-      {error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#1a3d2b]/50 px-6 text-center">
-          <span className="text-3xl">📊</span>
-          <span className="font-lato text-sm">El visor no pudo cargar esta presentación.</span>
-          <span className="font-lato text-xs text-[#1a3d2b]/35">Intentá recargando la página o usando el botón de descarga.</span>
-        </div>
-      )}
-      <iframe
-        src={viewerUrl}
-        title="Visor de presentación"
-        className="w-full h-full border-0"
-        style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.3s" }}
-        onLoad={() => setLoaded(true)}
-        onError={() => setError(true)}
-        allowFullScreen
-      />
-    </div>
-  );
-}
 
 export default function Presentaciones({ plan = 'vip', puedeDescargar = true }) {
   const [expandido, setExpandido] = useState({});
@@ -116,45 +79,35 @@ export default function Presentaciones({ plan = 'vip', puedeDescargar = true }) 
           className="bg-white rounded-2xl border border-crema shadow-card overflow-hidden"
         >
           {/* Encabezado */}
-          <div className="bg-gradient-to-r from-[#5a4000] to-[#9a7020] px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">{pres.emoji}</span>
-              <div>
-                <div className="flex items-center gap-2">
-                  <Presentation className="text-[#f0d070] w-4 h-4" />
-                  <span className="text-[#f0d070] text-xs font-bold uppercase tracking-widest">
-                    Presentación · {pres.id} de {presentaciones.length}
-                  </span>
-                </div>
-                <h3 className="text-white font-playfair text-xl font-black mt-0.5 m-0 !text-white !shadow-none">
-                  {pres.titulo}
-                </h3>
-                <p className="text-white/60 font-lato text-xs mt-0.5">
-                  {pres.subtitulo}
-                </p>
+          <div className="bg-gradient-to-r from-[#5a4000] to-[#9a7020] px-6 py-4 flex items-center gap-3">
+            <span className="text-2xl">{pres.emoji}</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <Presentation className="text-[#f0d070] w-4 h-4" />
+                <span className="text-[#f0d070] text-xs font-bold uppercase tracking-widest">
+                  Presentación · {pres.id} de {presentaciones.length}
+                </span>
               </div>
+              <h3 className="text-white font-playfair text-xl font-black mt-0.5 m-0 !text-white !shadow-none">
+                {pres.titulo}
+              </h3>
+              <p className="text-white/60 font-lato text-xs mt-0.5">
+                {pres.subtitulo}
+              </p>
             </div>
-            {puedeDescargar && (
-              <a
-                href={pres.pptUrl}
-                download
-                className="flex items-center gap-2 text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-2 rounded-full transition-all border border-white/20 whitespace-nowrap flex-shrink-0"
-              >
-                <Download className="w-3 h-3" /> Descargar PPT
-              </a>
-            )}
           </div>
 
-          {/* Visor embebido Office Online */}
-          <PPTViewer pptUrl={pres.pptUrl} />
+          {/* Visor PDF embebido — con descarga según plan */}
+          <PDFViewer src={pres.pdfSrc} puedeDescargar={puedeDescargar} />
 
-          {/* Descripción siempre visible + Contenidos colapsables */}
+          {/* Descripción siempre visible */}
           <div className="border-t border-crema px-6 pt-5 pb-2">
             <p className="text-[#1a3d2b]/75 font-lato text-[15px] leading-relaxed">
               {pres.descripcion}
             </p>
           </div>
 
+          {/* Contenidos colapsables */}
           <div className="border-t border-crema/60">
             <button
               onClick={() => toggleExpandido(pres.id)}

@@ -2,14 +2,14 @@ import { useState, useCallback } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download } from "lucide-react";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url
 ).toString();
 
-export default function PDFViewer({ src }) {
+export default function PDFViewer({ src, puedeDescargar = false }) {
   const [numPages, setNumPages] = useState(null);
   const [page, setPage] = useState(1);
   const [scale, setScale] = useState(1.2);
@@ -65,6 +65,15 @@ export default function PDFViewer({ src }) {
           >
             <ZoomIn className="w-4 h-4" />
           </button>
+          {puedeDescargar && (
+            <a
+              href={src}
+              download
+              className="ml-2 flex items-center gap-1 text-xs bg-[#c9a84c] hover:bg-[#f0d070] text-[#1a3d2b] font-bold px-3 py-1 rounded-full transition-all"
+            >
+              <Download className="w-3 h-3" /> Descargar
+            </a>
+          )}
         </div>
       </div>
 
