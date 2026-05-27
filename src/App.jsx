@@ -96,7 +96,7 @@ export default function App() {
   );
 
   const CurrentSectionComponent = currentSection === "configuracion"
-    ? () => <Configuracion isAdminUser={isAdminUser} />
+    ? () => <Configuracion isAdminUser={isAdminUser} userEmail={userEmail} />
     : plan
       ? () => {
           const Comp = sectionComponents[currentSection]

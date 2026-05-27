@@ -27,12 +27,12 @@ const PLANES = [
   },
 ]
 
-export default function Configuracion({ isAdminUser }) {
+export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }) {
   const [registeredUsers, setRegisteredUsers] = useState([])
   const [adminEmails, setAdminEmails] = useState([])
   const [nuevoAdmin, setNuevoAdmin] = useState('')
   const [showRegistered, setShowRegistered] = useState(true)
-  const [userEmail, setUserEmail] = useState('')
+  const [userEmail, setUserEmail] = useState(emailProp)
   const [userStatus, setUserStatus] = useState(null)
   const [userTrialEnd, setUserTrialEnd] = useState(null)
   const [planClickeado, setPlanClickeado] = useState(null)
