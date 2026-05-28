@@ -468,10 +468,11 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
                       return (
                         <div key={u.email} style={{
                           background: i % 2 === 0 ? 'rgba(0,0,0,.02)' : 'rgba(0,0,0,.05)',
-                          padding: '9px 12px',
+                          padding: '10px 12px',
                           borderBottom: '1px solid rgba(0,0,0,.05)'
                         }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          {/* Fila 1: nombre editable + email + eliminar */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <input
                                 type="text"
@@ -486,18 +487,32 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
                                   fontSize: '12px', fontWeight: 700, color: '#1a3d2b',
                                   border: 'none', borderBottom: '1px dashed #b2d8c2',
                                   background: 'transparent', outline: 'none',
-                                  width: '100%', padding: '1px 0'
+                                  width: '100%', padding: '1px 0', display: 'block'
                                 }}
                               />
-                              <span style={{ fontSize: '11px', color: '#555', wordBreak: 'break-all' }}>
+                              <span style={{ fontSize: '11px', color: '#666' }}>
                                 {u.email}
                               </span>
                             </div>
+                            <button
+                              onClick={() => eliminarUsuario(u.email)}
+                              title="Eliminar cuenta"
+                              style={{
+                                background: 'none', border: 'none', cursor: 'pointer',
+                                color: '#C0392B', fontSize: '15px', padding: '0 2px',
+                                lineHeight: 1, flexShrink: 0
+                              }}
+                            >🗑</button>
+                          </div>
+
+                          {/* Fila 2: badges + controles */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                             <span style={{
                               fontSize: '10px', fontWeight: 700,
                               background: badge.bg, color: '#fff',
                               borderRadius: 20, padding: '2px 9px', whiteSpace: 'nowrap'
                             }}>{badge.label}</span>
+
                             {esAdmin && (
                               <span style={{
                                 fontSize: '10px', fontWeight: 700,
@@ -505,18 +520,7 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
                                 borderRadius: 20, padding: '2px 10px'
                               }}>👑 Admin</span>
                             )}
-                            <button
-                              onClick={() => eliminarUsuario(u.email)}
-                              title="Eliminar cuenta"
-                              style={{
-                                background: 'none', border: 'none', cursor: 'pointer',
-                                color: '#C0392B', fontSize: '14px', padding: '0 2px',
-                                lineHeight: 1, flexShrink: 0
-                              }}
-                            >🗑</button>
-                          </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
                             {!esAdmin && (
                               <>
                                 {[
@@ -544,7 +548,6 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
                                   />
                                 )}
 
-                                {/* Toggle descarga — solo para plan Pro */}
                                 {esPro && (
                                   <label style={{
                                     display: 'flex', alignItems: 'center', gap: 5,
@@ -556,9 +559,7 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
                                     color: u.puede_descargar ? '#2E7D32' : '#999',
                                     transition: 'all 0.2s', whiteSpace: 'nowrap'
                                   }}>
-                                    <input
-                                      type="checkbox"
-                                      checked={!!u.puede_descargar}
+                                    <input type="checkbox" checked={!!u.puede_descargar}
                                       onChange={e => toggleDescarga(u.email, e.target.checked)}
                                       style={{ display: 'none' }}
                                     />
@@ -570,15 +571,15 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
 
                             <span style={{ marginLeft: 'auto' }}>
                               {!esAdmin
-                                ? <span
-                                    onClick={() => addAdminEmail(u.email)}
-                                    style={{ color: '#2E7D32', fontSize: '10px', cursor: 'pointer' }}
-                                  >+ admin</span>
+                                ? <span onClick={() => addAdminEmail(u.email)}
+                                    style={{ color: '#2E7D32', fontSize: '10px', cursor: 'pointer' }}>
+                                    + admin
+                                  </span>
                                 : adminEmails.length > 1 &&
-                                  <span
-                                    onClick={() => removeAdminEmail(u.email)}
-                                    style={{ color: '#C0392B', fontSize: '10px', cursor: 'pointer' }}
-                                  >✕ admin</span>
+                                  <span onClick={() => removeAdminEmail(u.email)}
+                                    style={{ color: '#C0392B', fontSize: '10px', cursor: 'pointer' }}>
+                                    ✕ admin
+                                  </span>
                               }
                             </span>
                           </div>
