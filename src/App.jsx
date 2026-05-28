@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Sidebar, { sections } from "./components/Sidebar";
 import IntroScreen from "./components/IntroScreen";
 import AuthGate from "./components/AuthGate";
+import MensajeBanner from "./components/MensajeBanner";
 import Configuracion from "./sections/Configuracion";
 import { usePlan } from "./lib/usePlan";
 import { supabase, recordVisit, removeVisit, getVisitedSections } from "./lib/supabase";
@@ -32,6 +33,7 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { plan, puedeDescargar } = usePlan(isAdminUser);
 
@@ -91,10 +93,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    supabase?.auth.getSession().then(({ data: { session } }) => {
+    supabase?.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user?.email) {
-        setUserEmail(session.user.email);
-        setIsAdminUser(session.user.email === 'psicologohernanstagni@gmail.com');
+        const email = session.user.email;
+        setUserEmail(email);
+        setIsAdminUser(email === 'psicologohernanstagni@gmail.com');
+        const { data } = await supabase.from('registered_users').select('nombre').eq('email', email).maybeSingle();
+        if (data?.nombre) setUserName(data.nombre);
       }
     });
   }, []);
@@ -116,6 +121,9 @@ export default function App() {
 
   return (
     <AuthGate onAuthReady={(admin, email) => { setIsAdminUser(admin); setUserEmail(email || ''); }}>
+      {!isAdminUser && userEmail && (
+        <MensajeBanner userEmail={userEmail} userName={userName} />
+      )}
       <div className="min-h-screen bg-blanco-calido texture-overlay">
         <AnimatePresence>
           {showIntro && (

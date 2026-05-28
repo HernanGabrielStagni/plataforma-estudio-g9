@@ -164,6 +164,64 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
     if (!error) fetchAdminEmails()
   }
 
+  // ── MENSAJERÍA ──
+  const [mensajeTexto, setMensajeTexto] = useState('')
+  const [destinatariosMensaje, setDestinatariosMensaje] = useState([]) // emails seleccionados o 'todos'
+  const [enviarATodos, setEnviarATodos] = useState(false)
+  const [mensajesEnviados, setMensajesEnviados] = useState([])
+  const [respuestasUsuarios, setRespuestasUsuarios] = useState([])
+  const [enviandoMsg, setEnviandoMsg] = useState(false)
+
+  useEffect(() => {
+    if (!isAdminUser) return
+    fetchMensajesEnviados()
+    fetchRespuestas()
+  }, [isAdminUser])
+
+  async function fetchMensajesEnviados() {
+    const { data } = await supabase.from('mensajes_admin').select('*').order('created_at', { ascending: false })
+    if (data) setMensajesEnviados(data)
+  }
+
+  async function fetchRespuestas() {
+    const { data } = await supabase.from('mensajes_usuarios').select('*').order('created_at', { ascending: false })
+    if (data) setRespuestasUsuarios(data)
+  }
+
+  async function enviarMensaje() {
+    if (!mensajeTexto.trim()) return
+    const destinos = enviarATodos ? ['todos'] : destinatariosMensaje
+    if (!destinos.length) return
+    setEnviandoMsg(true)
+    for (const dest of destinos) {
+      await supabase.from('mensajes_admin').insert({ destinatario: dest, contenido: mensajeTexto.trim() })
+    }
+    setMensajeTexto(''); setDestinatariosMensaje([]); setEnviarATodos(false)
+    setEnviandoMsg(false)
+    fetchMensajesEnviados()
+  }
+
+  async function toggleActivoMensaje(id, activo) {
+    await supabase.from('mensajes_admin').update({ activo: !activo }).eq('id', id)
+    fetchMensajesEnviados()
+  }
+
+  async function eliminarMensaje(id) {
+    await supabase.from('mensajes_admin').delete().eq('id', id)
+    fetchMensajesEnviados()
+  }
+
+  async function marcarRespuestaLeida(id) {
+    await supabase.from('mensajes_usuarios').update({ leido: true }).eq('id', id)
+    setRespuestasUsuarios(prev => prev.map(r => r.id === id ? { ...r, leido: true } : r))
+  }
+
+  function toggleDestinatario(email) {
+    setDestinatariosMensaje(prev =>
+      prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email]
+    )
+  }
+
   async function handleLogout() {
     if (window.cerrarSesion) window.cerrarSesion()
   }
@@ -555,6 +613,154 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
           )}
         </div>
       )}
+
+      {/* ── PANEL MENSAJERÍA ADMIN ── */}
+        {isAdminUser && (
+          <div style={cardStyle}>
+            <h3 style={{ margin: '0 0 16px', color: '#1a3d2b', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+              ✉️ Mensajes a usuarios
+            </h3>
+
+            {/* Compositor */}
+            <div style={{ background: '#f8faf9', borderRadius: 12, padding: 16, marginBottom: 20, border: '1px solid #d4e6da' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1a3d2b', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Nuevo mensaje
+              </div>
+
+              {/* Destinatarios */}
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={enviarATodos} onChange={e => { setEnviarATodos(e.target.checked); setDestinatariosMensaje([]) }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#2d5a3d' }}>Enviar a TODOS los usuarios</span>
+                </label>
+                {!enviarATodos && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {registeredUsers.filter(u => !adminEmails.some(a => a.email === u.email)).map(u => (
+                      <label key={u.email} style={{
+                        display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer',
+                        background: destinatariosMensaje.includes(u.email) ? '#d4e6da' : '#f0f0f0',
+                        border: `1px solid ${destinatariosMensaje.includes(u.email) ? '#2d5a3d' : '#ddd'}`,
+                        borderRadius: 20, padding: '4px 10px', fontSize: 11, fontWeight: 600,
+                        transition: 'all 0.15s'
+                      }}>
+                        <input type="checkbox" style={{ display: 'none' }}
+                          checked={destinatariosMensaje.includes(u.email)}
+                          onChange={() => toggleDestinatario(u.email)}
+                        />
+                        {u.nombre ? `${u.nombre}` : u.email.split('@')[0]}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <textarea
+                value={mensajeTexto}
+                onChange={e => setMensajeTexto(e.target.value)}
+                placeholder="Escribí el mensaje aquí..."
+                rows={4}
+                style={{
+                  width: '100%', boxSizing: 'border-box', fontSize: 13, padding: '10px 12px',
+                  border: '1.5px solid #ccc', borderRadius: 10, resize: 'vertical',
+                  fontFamily: 'sans-serif', marginBottom: 10
+                }}
+              />
+              <button
+                onClick={enviarMensaje}
+                disabled={enviandoMsg || !mensajeTexto.trim() || (!enviarATodos && !destinatariosMensaje.length)}
+                style={{
+                  padding: '9px 20px', background: '#2d5a3d', color: 'white',
+                  border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13,
+                  opacity: enviandoMsg || !mensajeTexto.trim() || (!enviarATodos && !destinatariosMensaje.length) ? 0.5 : 1
+                }}
+              >
+                {enviandoMsg ? 'Enviando...' : '📤 Enviar mensaje'}
+              </button>
+            </div>
+
+            {/* Mensajes enviados */}
+            {mensajesEnviados.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
+                  Mensajes enviados ({mensajesEnviados.length})
+                </div>
+                {mensajesEnviados.map(m => (
+                  <div key={m.id} style={{
+                    background: m.activo ? '#f0f7f3' : '#f5f5f5',
+                    border: `1px solid ${m.activo ? '#b2d8c2' : '#ddd'}`,
+                    borderRadius: 10, padding: '10px 14px', marginBottom: 8,
+                    display: 'flex', gap: 10, alignItems: 'flex-start'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 10, color: '#888', marginBottom: 4 }}>
+                        Para: <strong>{m.destinatario === 'todos' ? 'Todos los usuarios' : m.destinatario}</strong>
+                        {' · '}{new Date(m.created_at).toLocaleDateString('es-AR')}
+                        {' · '}<span style={{ color: m.activo ? '#2d5a3d' : '#999' }}>{m.activo ? '🟢 Activo' : '⚫ Inactivo'}</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: '#333', whiteSpace: 'pre-wrap' }}>{m.contenido}</div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                      <button onClick={() => toggleActivoMensaje(m.id, m.activo)} style={{
+                        fontSize: 10, padding: '2px 8px', borderRadius: 6, cursor: 'pointer',
+                        background: m.activo ? '#fff3e0' : '#e8f5e9',
+                        border: `1px solid ${m.activo ? '#ffb74d' : '#81c784'}`,
+                        color: m.activo ? '#e65100' : '#2e7d32', fontWeight: 600
+                      }}>
+                        {m.activo ? 'Desactivar' : 'Activar'}
+                      </button>
+                      <button onClick={() => eliminarMensaje(m.id)} style={{
+                        fontSize: 10, padding: '2px 8px', borderRadius: 6, cursor: 'pointer',
+                        background: '#fdecea', border: '1px solid #ef9a9a', color: '#c62828', fontWeight: 600
+                      }}>
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Respuestas de usuarios */}
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                Respuestas recibidas ({respuestasUsuarios.length})
+                {respuestasUsuarios.some(r => !r.leido) && (
+                  <span style={{ background: '#c0392b', color: 'white', borderRadius: 20, padding: '1px 8px', fontSize: 10 }}>
+                    {respuestasUsuarios.filter(r => !r.leido).length} nuevas
+                  </span>
+                )}
+              </div>
+              {respuestasUsuarios.length === 0 && (
+                <div style={{ color: '#aaa', fontSize: 12, fontStyle: 'italic' }}>Sin respuestas aún.</div>
+              )}
+              {respuestasUsuarios.map(r => (
+                <div key={r.id} style={{
+                  background: r.leido ? '#fafafa' : '#fffde7',
+                  border: `1px solid ${r.leido ? '#eee' : '#f9a825'}`,
+                  borderRadius: 10, padding: '10px 14px', marginBottom: 8,
+                  display: 'flex', gap: 10, alignItems: 'flex-start'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 10, color: '#888', marginBottom: 4 }}>
+                      De: <strong>{r.de_nombre || r.de_email}</strong>
+                      {r.de_nombre && <span style={{ color: '#aaa' }}> ({r.de_email})</span>}
+                      {' · '}{new Date(r.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <div style={{ fontSize: 13, color: '#333', whiteSpace: 'pre-wrap' }}>{r.contenido}</div>
+                  </div>
+                  {!r.leido && (
+                    <button onClick={() => marcarRespuestaLeida(r.id)} style={{
+                      fontSize: 10, padding: '2px 8px', borderRadius: 6, cursor: 'pointer',
+                      background: '#e8f5e9', border: '1px solid #81c784', color: '#2e7d32', fontWeight: 600, flexShrink: 0
+                    }}>
+                      ✓ Marcar leída
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
     </div>
   )
 }
