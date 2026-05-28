@@ -126,6 +126,13 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
     fetchRegisteredUsers()
   }
 
+  async function actualizarNombre(emailUsuario, nuevoNombre) {
+    setRegisteredUsers(prev => prev.map(u =>
+      u.email === emailUsuario ? { ...u, nombre: nuevoNombre } : u
+    ))
+    await supabase.from('registered_users').update({ nombre: nuevoNombre || null }).eq('email', emailUsuario)
+  }
+
   async function eliminarUsuario(emailAEliminar) {
     if (!window.confirm(`¿Eliminar la cuenta de ${emailAEliminar}?`)) return
     setRegisteredUsers(prev => prev.filter(u => u.email !== emailAEliminar))
@@ -408,11 +415,22 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
                         }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              {u.nombre && (
-                                <div style={{ fontSize: '12px', fontWeight: 700, color: '#1a3d2b', wordBreak: 'break-all' }}>
-                                  {u.nombre}
-                                </div>
-                              )}
+                              <input
+                                type="text"
+                                defaultValue={u.nombre || ''}
+                                placeholder="Agregar nombre..."
+                                onBlur={e => {
+                                  const val = e.target.value.trim()
+                                  if (val !== (u.nombre || '')) actualizarNombre(u.email, val)
+                                }}
+                                onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+                                style={{
+                                  fontSize: '12px', fontWeight: 700, color: '#1a3d2b',
+                                  border: 'none', borderBottom: '1px dashed #b2d8c2',
+                                  background: 'transparent', outline: 'none',
+                                  width: '100%', padding: '1px 0'
+                                }}
+                              />
                               <span style={{ fontSize: '11px', color: '#555', wordBreak: 'break-all' }}>
                                 {u.email}
                               </span>
