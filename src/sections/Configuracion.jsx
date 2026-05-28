@@ -253,10 +253,10 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
 
       {/* Identificación del usuario */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+        display: 'flex', alignItems: 'center', gap: 10,
         background: 'white', borderRadius: 12, padding: '12px 18px',
         boxShadow: '0 2px 12px rgba(26,61,43,0.10)', marginBottom: 20,
-        border: '1px solid rgba(26,61,43,0.08)'
+        border: '1px solid rgba(26,61,43,0.08)', overflow: 'hidden'
       }}>
         <div style={{
           width: 36, height: 36, borderRadius: '50%',
@@ -264,11 +264,11 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0, fontSize: 16
         }}>👤</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
           <div style={{ fontSize: '11px', color: '#999', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Sesión activa
           </div>
-          <div style={{ fontSize: '14px', color: '#1a3d2b', fontWeight: 700, wordBreak: 'break-all' }}>
+          <div style={{ fontSize: '13px', color: '#1a3d2b', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {userEmail}
           </div>
         </div>
@@ -679,87 +679,153 @@ export default function Configuracion({ isAdminUser, userEmail: emailProp = '' }
               </button>
             </div>
 
-            {/* Mensajes enviados */}
-            {mensajesEnviados.length > 0 && (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-                  Mensajes enviados ({mensajesEnviados.length})
-                </div>
-                {mensajesEnviados.map(m => (
-                  <div key={m.id} style={{
-                    background: m.activo ? '#f0f7f3' : '#f5f5f5',
-                    border: `1px solid ${m.activo ? '#b2d8c2' : '#ddd'}`,
-                    borderRadius: 10, padding: '10px 14px', marginBottom: 8,
-                    display: 'flex', gap: 10, alignItems: 'flex-start'
-                  }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 10, color: '#888', marginBottom: 4 }}>
-                        Para: <strong>{m.destinatario === 'todos' ? 'Todos los usuarios' : m.destinatario}</strong>
-                        {' · '}{new Date(m.created_at).toLocaleDateString('es-AR')}
-                        {' · '}<span style={{ color: m.activo ? '#2d5a3d' : '#999' }}>{m.activo ? '🟢 Activo' : '⚫ Inactivo'}</span>
-                      </div>
-                      <div style={{ fontSize: 12, color: '#333', whiteSpace: 'pre-wrap' }}>{m.contenido}</div>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-                      <button onClick={() => toggleActivoMensaje(m.id, m.activo)} style={{
-                        fontSize: 10, padding: '2px 8px', borderRadius: 6, cursor: 'pointer',
-                        background: m.activo ? '#fff3e0' : '#e8f5e9',
-                        border: `1px solid ${m.activo ? '#ffb74d' : '#81c784'}`,
-                        color: m.activo ? '#e65100' : '#2e7d32', fontWeight: 600
-                      }}>
-                        {m.activo ? 'Desactivar' : 'Activar'}
-                      </button>
-                      <button onClick={() => eliminarMensaje(m.id)} style={{
-                        fontSize: 10, padding: '2px 8px', borderRadius: 6, cursor: 'pointer',
-                        background: '#fdecea', border: '1px solid #ef9a9a', color: '#c62828', fontWeight: 600
-                      }}>
-                        Eliminar
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Conversaciones por usuario */}
+            {(() => {
+              // Reunir todos los destinatarios únicos (excluye 'todos')
+              const destinatariosIndividuales = [...new Set(
+                mensajesEnviados.filter(m => m.destinatario !== 'todos').map(m => m.destinatario)
+              )]
+              // Mensajes "para todos" van a una sección aparte
+              const paraTodos = mensajesEnviados.filter(m => m.destinatario === 'todos')
+              // Buscar nombre en registeredUsers
+              const getNombre = email => {
+                const u = registeredUsers.find(r => r.email === email)
+                return u?.nombre || null
+              }
+              const fmtFecha = d => new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 
-            {/* Respuestas de usuarios */}
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                Respuestas recibidas ({respuestasUsuarios.length})
-                {respuestasUsuarios.some(r => !r.leido) && (
-                  <span style={{ background: '#c0392b', color: 'white', borderRadius: 20, padding: '1px 8px', fontSize: 10 }}>
-                    {respuestasUsuarios.filter(r => !r.leido).length} nuevas
-                  </span>
-                )}
-              </div>
-              {respuestasUsuarios.length === 0 && (
-                <div style={{ color: '#aaa', fontSize: 12, fontStyle: 'italic' }}>Sin respuestas aún.</div>
-              )}
-              {respuestasUsuarios.map(r => (
+              const renderMsgAdmin = m => (
+                <div key={m.id} style={{
+                  background: m.activo ? '#e8f4ed' : '#f5f5f5',
+                  border: `1px solid ${m.activo ? '#b2d8c2' : '#ddd'}`,
+                  borderRadius: 8, padding: '8px 12px', marginBottom: 6,
+                  display: 'flex', gap: 8, alignItems: 'flex-start'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 10, color: '#888', marginBottom: 3 }}>
+                      📤 Vos · {fmtFecha(m.created_at)}
+                      {' · '}<span style={{ color: m.activo ? '#2d5a3d' : '#999', fontWeight: 600 }}>{m.activo ? '🟢 Activo' : '⚫ Inactivo'}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#222', whiteSpace: 'pre-wrap' }}>{m.contenido}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                    <button onClick={() => toggleActivoMensaje(m.id, m.activo)} style={{
+                      fontSize: 10, padding: '2px 7px', borderRadius: 5, cursor: 'pointer',
+                      background: m.activo ? '#fff3e0' : '#e8f5e9',
+                      border: `1px solid ${m.activo ? '#ffb74d' : '#81c784'}`,
+                      color: m.activo ? '#e65100' : '#2e7d32', fontWeight: 600
+                    }}>{m.activo ? 'Desactivar' : 'Activar'}</button>
+                    <button onClick={() => eliminarMensaje(m.id)} style={{
+                      fontSize: 10, padding: '2px 7px', borderRadius: 5, cursor: 'pointer',
+                      background: '#fdecea', border: '1px solid #ef9a9a', color: '#c62828', fontWeight: 600
+                    }}>✕</button>
+                  </div>
+                </div>
+              )
+
+              const renderRespuesta = r => (
                 <div key={r.id} style={{
                   background: r.leido ? '#fafafa' : '#fffde7',
                   border: `1px solid ${r.leido ? '#eee' : '#f9a825'}`,
-                  borderRadius: 10, padding: '10px 14px', marginBottom: 8,
-                  display: 'flex', gap: 10, alignItems: 'flex-start'
+                  borderRadius: 8, padding: '8px 12px', marginBottom: 6,
+                  display: 'flex', gap: 8, alignItems: 'flex-start'
                 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 10, color: '#888', marginBottom: 4 }}>
-                      De: <strong>{r.de_nombre || r.de_email}</strong>
-                      {r.de_nombre && <span style={{ color: '#aaa' }}> ({r.de_email})</span>}
-                      {' · '}{new Date(r.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    <div style={{ fontSize: 10, color: '#888', marginBottom: 3 }}>
+                      💬 {r.de_nombre ? <strong>{r.de_nombre}</strong> : r.de_email}
+                      {r.de_nombre && <span style={{ color: '#bbb' }}> · {r.de_email}</span>}
+                      {' · '}{fmtFecha(r.created_at)}
                     </div>
-                    <div style={{ fontSize: 13, color: '#333', whiteSpace: 'pre-wrap' }}>{r.contenido}</div>
+                    <div style={{ fontSize: 12, color: '#222', whiteSpace: 'pre-wrap' }}>{r.contenido}</div>
                   </div>
                   {!r.leido && (
                     <button onClick={() => marcarRespuestaLeida(r.id)} style={{
-                      fontSize: 10, padding: '2px 8px', borderRadius: 6, cursor: 'pointer',
+                      fontSize: 10, padding: '2px 7px', borderRadius: 5, cursor: 'pointer',
                       background: '#e8f5e9', border: '1px solid #81c784', color: '#2e7d32', fontWeight: 600, flexShrink: 0
-                    }}>
-                      ✓ Marcar leída
-                    </button>
+                    }}>✓ Leída</button>
                   )}
                 </div>
-              ))}
-            </div>
+              )
+
+              const totalNuevas = respuestasUsuarios.filter(r => !r.leido).length
+
+              return (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                      Conversaciones
+                    </span>
+                    {totalNuevas > 0 && (
+                      <span style={{ background: '#c0392b', color: 'white', borderRadius: 20, padding: '1px 8px', fontSize: 10, fontWeight: 700 }}>
+                        {totalNuevas} nuevas respuestas
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Mensajes para Todos */}
+                  {paraTodos.length > 0 && (
+                    <div style={{ marginBottom: 16, background: '#f8faf9', borderRadius: 10, padding: '10px 12px', border: '1px solid #d4e6da' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#2d5a3d', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        🌐 Para todos los usuarios
+                      </div>
+                      {paraTodos.map(renderMsgAdmin)}
+                    </div>
+                  )}
+
+                  {/* Conversaciones individuales */}
+                  {destinatariosIndividuales.length === 0 && paraTodos.length === 0 && respuestasUsuarios.length === 0 && (
+                    <div style={{ color: '#aaa', fontSize: 12, fontStyle: 'italic' }}>Sin mensajes aún.</div>
+                  )}
+
+                  {destinatariosIndividuales.map(email => {
+                    const nombre = getNombre(email)
+                    const msgsEnviados = mensajesEnviados.filter(m => m.destinatario === email)
+                    const respuestas = respuestasUsuarios.filter(r => r.de_email === email)
+                    const tieneNuevas = respuestas.some(r => !r.leido)
+                    // Mezclar y ordenar por fecha
+                    const hilo = [
+                      ...msgsEnviados.map(m => ({ tipo: 'enviado', data: m, ts: new Date(m.created_at) })),
+                      ...respuestas.map(r => ({ tipo: 'respuesta', data: r, ts: new Date(r.created_at) }))
+                    ].sort((a, b) => a.ts - b.ts)
+
+                    return (
+                      <div key={email} style={{ marginBottom: 16, border: `1.5px solid ${tieneNuevas ? '#f9a825' : '#e0ede6'}`, borderRadius: 10, overflow: 'hidden' }}>
+                        <div style={{ background: tieneNuevas ? '#fffbea' : '#f0f7f3', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 14 }}>👤</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            {nombre && <div style={{ fontSize: 12, fontWeight: 700, color: '#1a3d2b' }}>{nombre}</div>}
+                            <div style={{ fontSize: 11, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</div>
+                          </div>
+                          {tieneNuevas && <span style={{ background: '#c0392b', color: 'white', borderRadius: 20, padding: '1px 7px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>nueva</span>}
+                        </div>
+                        <div style={{ padding: '8px 10px' }}>
+                          {hilo.map(item =>
+                            item.tipo === 'enviado' ? renderMsgAdmin(item.data) : renderRespuesta(item.data)
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+
+                  {/* Respuestas sin mensaje previo (espontáneas) */}
+                  {respuestasUsuarios.filter(r => !destinatariosIndividuales.includes(r.de_email)).map(r => {
+                    const nombre = getNombre(r.de_email)
+                    return (
+                      <div key={r.id} style={{ marginBottom: 16, border: `1.5px solid ${r.leido ? '#e0ede6' : '#f9a825'}`, borderRadius: 10, overflow: 'hidden' }}>
+                        <div style={{ background: r.leido ? '#f0f7f3' : '#fffbea', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 14 }}>👤</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            {nombre && <div style={{ fontSize: 12, fontWeight: 700, color: '#1a3d2b' }}>{nombre}</div>}
+                            <div style={{ fontSize: 11, color: '#666' }}>{r.de_email}</div>
+                          </div>
+                        </div>
+                        <div style={{ padding: '8px 10px' }}>{renderRespuesta(r)}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
           </div>
         )}
     </div>
